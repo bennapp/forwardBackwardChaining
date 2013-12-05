@@ -1,0 +1,6 @@
+P => Q
+L ^ M => P
+A
+~A v ~B v L
+B ^ L => M
+B

@@ -1,0 +1,2 @@
+#!/bin/bash
+java Entail $1 $2 $3
