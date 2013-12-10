@@ -1,0 +1,14 @@
+#!/bin/bash
+echo "Running Tests for KB1 backward"
+echo "----------------------------------"
+echo "First knowledge base in english:"
+echo "--"
+echo "If your happy and you know it and you really want to show clap your hands."
+echo ""
+echo "KB1.txt content:"
+echo "--"
+cat KB1.txt
+echo ""
+echo "Searching for ClapYourHands backward"
+echo "--"
+./entail backward KB1.txt ClapYourHands

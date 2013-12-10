@@ -1,0 +1,15 @@
+#!/bin/bash
+echo "Running Tests for KB2 backward"
+echo "----------------------------------"
+echo "Second knowledge base in english:"
+echo "--"
+echo "How to determine a witch:"
+echo "If its a Person with long hair then they are a girl. If they are a person and the same weight as a duck then they float. If they float then they're made of wood. If its hot and you have no water then you have fire. If they are made of wood and you have fire then they burn. If they burn and they are a girl then they are a witch! --a reference to Monty Python and the Holy Grail"
+echo " "
+echo "KB2.txt content:"
+echo "--"
+cat KB2.txtecho ""
+echo " "
+echo "Searching for Witch backward"
+echo "--"
+./entail backward KB2.txt Witch

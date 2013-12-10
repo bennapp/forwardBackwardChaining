@@ -15,6 +15,8 @@ public class Entail{
 	public static Hashtable<String, Boolean> setSymbol = new Hashtable<String, Boolean>(); 
 	public static Hashtable<String, Boolean> valSymbol = new Hashtable<String, Boolean>();
 	public static LinkedList<String> toPush = new LinkedList<String>();
+	public static LinkedList<String> bcSentence = new LinkedList<String>();
+	public static LinkedList<String> bcFacts = new LinkedList<String>();
 
 
 	public static void print(Object stringOrMore){
@@ -22,20 +24,21 @@ public class Entail{
 	}
 
 	public static boolean notOp(String check){
+		return ((!check.equals("^")) && (!check.equals("v")) && (!check.equals("=>")));
+	}
+
+	public static boolean notOpAtAll(String check){
 		return ((!check.contains("^")) && (!check.contains("v")) && (!check.contains("=>")));
 	}
+
 
 	public static void addSentences(LinkedList<String> sentencesList){
 		Iterator<String> sentenceIt = sentencesList.iterator();
 		while(sentenceIt.hasNext()){
 			String sent = sentenceIt.next();
+			// print(sent);
 			LinkedList<Operator> ops = new LinkedList<Operator>();
-			// print(sentencesA[i]);
-			//facts
-			//print("vvvv");
-			//print(sent);
-			//print("^^^^");
-			if(notOp(sent)){
+			if(notOpAtAll(sent)){
 				if(sent.charAt(0)=='~'){
 					notfacts.add(sent);
 					factsTable.put(sent, true);
@@ -44,7 +47,6 @@ public class Entail{
 					factsTable.put(sent, true);
 				}
 			} else {
-				//sentencesS
 				String[] tokens = sent.split(" ");
 				Variable[] variables = new Variable[tokens.length];
 				for(int j=0;j<tokens.length;j++){
@@ -73,7 +75,7 @@ public class Entail{
 						ops.add(new And(variables[j-1], variables[j+1]));	
 					}
 					if(tokens[j].equals("v")){
-						ops.add(new Or(variables[j-1], variables[j+1]));	
+						ops.add(new Or(variables[j-1], variables[j+1]));
 					}
 					if(tokens[j].equals("=>")){
 						ops.add(new Imp(variables[j-1], variables[j+1]));	
@@ -84,76 +86,29 @@ public class Entail{
 		}
 	}
 	public static void deParenSentence(String sentence, int depth, LinkedList<String> toPush, String build, boolean ready){
-		// print("" + depth);
-		// print("." + sentence);
-		// print("." + build);
-		//if(sentence.equals("")){
-		//	print("i pushed = " + build);
-		//	toPush.push(build);
-		//	return toPush;
-		//}
 		if(sentence.length()>0 && sentence.charAt(0)=='('){
-			//print("(");
 			deParenSentence(sentence.substring(1), (depth +1), toPush, build, true);
 		} else if(sentence.length()>0 && sentence.charAt(0)==')'){
-			//print(")");
 			deParenSentence(sentence.substring(1), (depth -1), toPush, build, true);
 		} else if(depth == 0 && ready){
-			//print("zero");
-			//if(build.equals("")){
-			//}else{
-			//	print("i pushed = " + build);
-			//	toPush.push(build);
-			//}
 			String rest = "";
 			String[] splitC = sentence.split(" \\^ ");
-			//print("split c length = " + splitC.length);
 			if(splitC.length > 1){
 				int i;
 				for (i =1;i<splitC.length-1;i++){
 					rest += splitC[i]+" ^ ";
 				}
 				rest += splitC[i];
-				//print("pushed = " + build);
-				//print("rest = " + rest);
 				toPush.push(build);
 				deParenSentence(rest, depth, toPush, "", false);
 			} else{
-				//print("pushed => " + build);
 				toPush.push(build);
 			}
-			
-			//else{	print("i pushed = " + sentence);
-			//	toPush.push(sentence);
-			//	return toPush;
-			//}
-			//if(!splitC[0].equals("")){
-			//	toPush.push(splitC[0]);
-			//	print("i pushed = " + splitC[0]);
-			//	deParenSentence(rest, depth, toPush, "");
-			//}
-			
-
-			//if(sentence.length() > 3){
-			//	String rest = sentence.substring(3);
-			//	toPush = deParenSentence(rest, depth, toPush, "");
-			//}else{
-			//	// print(" !" + depth);
-			//	// print(" !" + sentence);
-			//	// print(" !" + build);
-			//	toPush.push(sentence);
-			//}
 		} else {
-			//print("char");
 			build += sentence.charAt(0);
 			deParenSentence(sentence.substring(1), depth, toPush, build, true);
 		}
 	}
-	//                         (P => Q) ^ (L ^ M => P) ^ A
-
-	//( (~B v P) v M ) ^ ( B v ~P ) ^ ( B v ~M ) ^ ~B ^ ( (A) ^ B => C )
-	// A ^ ((B)) ^ (A ^ B => C)
-	// (A ^ B => C) ^ D
 	public static LinkedList<String> removeParens(String[] sentencesA){
 		LinkedList<String> sentenceList = new LinkedList<String>();
 		for(int i=0;i<sentencesA.length;i++){
@@ -162,7 +117,6 @@ public class Entail{
 				deParenSentence(sentencesA[i], 0, toPush, "", false);
 				Iterator<String> toPushi = toPush.iterator();
 				while(toPushi.hasNext()){
-					// print("? " +toPushi.next());
 					sentenceList.push(toPushi.next());
 				}
 			} else {
@@ -173,13 +127,22 @@ public class Entail{
 	}
 
 	public static void main(String[] args){
+		if(args.length != 3){
+			print("Invalid arguments");
+			print("Try:");
+			print("$./entail <algorithm> <kBFile> <querySymbol>");
+			print("eg. backward KB.txt Q");
+			print("eg. forward KB.txt L");
+			System.exit(1);
+		}
+
 		try{
 			String alg = args[0];
 			String kBFile = args[1];
 			String querySymbol = args[2];
 			br = new BufferedReader(new FileReader(kBFile));
 			while ((currentLine = br.readLine()) != null) {
-				sentencesS += currentLine + "@";
+				sentencesS += currentLine.trim().replaceAll(" +", " ") + "@";
 			}
 			sentencesA = sentencesS.split("@");
 			LinkedList<String> sentenceList = new LinkedList<String>();
@@ -192,9 +155,6 @@ public class Entail{
 			Iterator<Sentence> i = sentences.iterator();
 			while(i.hasNext()){
 				Sentence temp = i.next();
-
-				//check if imp form
-				//asssuming horn form => as last op then body is horn form
 				if(temp.opList.getLast().token.equals("=>")){
 					temp.impForm = true;
 				}
@@ -296,13 +256,6 @@ public class Entail{
 						impSentence.impForm = true;
 					}
 						toAdd.add(impSentence);
-						// String sentenceTest = "";
-						// while(!impSentence.opList.isEmpty()){
-						// Operator tempOP = impSentence.opList.pop();
-							// sentenceTest += tempOP.first.name + " " + tempOP.token + " " + tempOP.second.name;
-							//temp.op();
-						// }
-						// print(sentenceTest);
 				}
 			}
 			Iterator<Sentence> removeSentences = toRemove.iterator();
@@ -331,6 +284,11 @@ public class Entail{
 			}
 
 			if(alg.equals("forward")){
+				Iterator<String> factsIt = facts.iterator();
+				while(factsIt.hasNext()){
+					print(factsIt.next());
+				}
+
 				while(!agenda.isEmpty()){
 					LinkedList<Sentence> clauses = new LinkedList<Sentence>();
 					Iterator<Sentence> clauseInit = sentences.iterator();
@@ -339,7 +297,6 @@ public class Entail{
 					}
 
 					String fact = agenda.pop();
-
 					if(!fact.equals("false")){
 						entailed.put(fact, true);
 					}
@@ -373,7 +330,7 @@ public class Entail{
 								headOp = operator;
 							}
 						}
-						if(headOp!= null){ //I don't think you can have C ^ D => ~E
+						if(headOp!= null){
 							if(headOp.first.getValue()){
 								setSymbol.put(headOp.second.name, true);
 								valSymbol.put(headOp.second.name, true);
@@ -386,30 +343,47 @@ public class Entail{
 						}
 					}
 				}
-
 				if(entailed.containsKey(querySymbol)){
-					print("True");
+					print("--> True");
 				} else{
-					print("False");
+					print("--> False");
 				}
-			} else if(alg.equals("backward")) { //if alg
+			///////////////////////////////////
+			} else if(alg.equals("backward")) {
 				boolean output = false;
-				Hashtable<String, Sentence> sentenceTable = new Hashtable<String, Sentence>();
+
+				LinkedList<Sentence> sentenceTable = new LinkedList<Sentence>();
 
 				Iterator<Sentence> isentences = sentences.iterator();
 				while(isentences.hasNext()){
 					Sentence s = isentences.next();
 					if(s.opList.getLast().token.equals("=>")){
-						sentenceTable.put(s.opList.getLast().second.name, s);
+						sentenceTable.push(s);
 					}
 				}
+				Hashtable<String, Boolean> inQ = new Hashtable<String, Boolean>();
 
-				output = prove(querySymbol, factsTable, sentenceTable);
+				prove(querySymbol, sentenceTable, inQ);
 
-				if(output){
-					print("True");
+				while(!bcSentence.isEmpty()){
+					print(bcSentence.pop());
+				}
+				while(!facts.isEmpty()){
+					String fact = facts.pop();
+					Iterator bcFactIt = bcFacts.iterator();
+					while(bcFactIt.hasNext()){
+						if(fact.equals(bcFactIt.next())){
+							print(fact);
+							break;
+						}
+					}
+				}
+				
+
+				if(factsTable.get(querySymbol) != null){
+					print("--> True");
 				} else {
-					print("False");
+					print("--> False");
 				}
 			}
 			
@@ -466,49 +440,97 @@ public class Entail{
 		}
 	}
 
-	public static boolean prove(String q, Hashtable<String, Boolean> facts, Hashtable<String, Sentence> sTable){
-		boolean output = false;
-		if(facts.containsKey(q)){
-			output = true;
-		} else {
-				boolean allTrue = true;
-			if(sTable.containsKey(q)){
-				//iterate through all of the children if they are prove then add q to facts
-				Sentence s = sTable.get(q);
-				printSentence(s);
-				Iterator<Operator> opit = s.opList.iterator();
-				String newFact = s.opList.getLast().second.name;
-				LinkedList<Sentence> sPop = new LinkedList<Sentence>();
-				while(opit.hasNext()){
-					Operator op = opit.next();
-					if(!prove(op.first.name, facts, sTable)){
-						allTrue = false;
-					}
-				}
-				if(allTrue){
-					facts.put(newFact, true);
-					sPop.push(s);
-				}
-				return allTrue;
-			} else {
-				output = false;
+	public static void prove(String q, LinkedList<Sentence> sList, Hashtable<String, Boolean> inQ){
+		Iterator<Sentence> sentIt = sList.iterator();
+		LinkedList<Sentence> inQuestionList = new LinkedList<Sentence>();
+		while(sentIt.hasNext()){
+			Sentence s = sentIt.next();
+			if(s.opList.getLast().second.name.equals(q)){
+				inQuestionList.add(s);
 			}
 		}
-		return output;
+		Iterator<Sentence> inQuestionListIt = inQuestionList.iterator();
+		while(inQuestionListIt.hasNext()){
+			Sentence inQuestion = inQuestionListIt.next();
+
+			LinkedList<Sentence> sListNext = new LinkedList<Sentence>();
+			Iterator<Sentence> sentItNext = sList.iterator();
+			while(sentItNext.hasNext()){
+				Sentence next = sentItNext.next();
+				if(inQuestion != next){
+					sListNext.add(next);
+				}
+			}
+			if(inQuestion != null){
+				boolean bcContain = false;
+				Iterator<String> bcIt = bcSentence.iterator();
+				while(bcIt.hasNext()){
+					if(sentenceToString(inQuestion).equals(bcIt.next())){
+						bcContain = true;
+					}
+				}
+				if(!bcContain){
+					bcSentence.add(sentenceToString(inQuestion));
+				}
+				inQ.put(inQuestion.opList.getLast().second.name, true);
+				Iterator<Operator> opIt = inQuestion.opList.iterator();
+				while(opIt.hasNext()){
+					String operatorName = opIt.next().first.name;
+					if(factsTable.get(operatorName) != null){
+						bcFacts.add(operatorName);
+					}
+					if(inQ.get(operatorName) != null){
+						if(inQ.get(operatorName)){
+							break;
+						}
+					} else {
+						prove(operatorName, sListNext, inQ);
+					}
+				}
+				boolean allFacts = true;
+				Iterator<Operator> opItFacts = inQuestion.opList.iterator();
+				while(opItFacts.hasNext()){
+					String operatorNameFacts = opItFacts.next().first.name;
+					if(factsTable.get(operatorNameFacts) == null){
+						allFacts = false;
+					}
+				}
+				if(allFacts){
+					inQ.remove(q);
+					factsTable.put(q, true);
+				}
+			}
+		}
 	}
 
 	public static void printSentence(Sentence clause){
 		Iterator<Operator> opTest = clause.opList.iterator();
 		String sentenceTest = "";
+		int i = 0;
 		while(opTest.hasNext()){
 			Operator testOP = opTest.next();
-			sentenceTest += testOP.first.name + " " + testOP.token + " " + testOP.second.name + "%";
+			if(i == 0){
+				sentenceTest += testOP.first.name + " " + testOP.token + " " + testOP.second.name;
+			} else {
+				sentenceTest += " " + testOP.token + " " + testOP.second.name;
+			}
+			i++;
 		}
-		String[] sentenceParse = sentenceTest.split("%");
-		String sentenceout =sentenceParse[0];
-		for(int l=1;l<sentenceParse.length;l++){
-			sentenceout+= sentenceParse[l].substring(1, sentenceParse[l].length());
+		print(sentenceTest);
+	}
+	public static String sentenceToString(Sentence clause){
+		Iterator<Operator> opTest = clause.opList.iterator();
+		String sentenceTest = "";
+		int i = 0;
+		while(opTest.hasNext()){
+			Operator testOP = opTest.next();
+			if(i == 0){
+				sentenceTest += testOP.first.name + " " + testOP.token + " " + testOP.second.name;
+			} else {
+				sentenceTest += " " + testOP.token + " " + testOP.second.name;
+			}
+			i++;
 		}
-		print(sentenceout);
+		return sentenceTest;
 	}
 }

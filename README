@@ -1,0 +1,38 @@
+Ben Nappier ben2113 
+COMS W4701 Artificial Intelligence
+Fall 2013
+Interface Algorithms Documentation
+
+This program will run entailment for a query on a given knowledge base. The knowledge base sentences should be in horn form. They semantics of the knowledge base support ignoring whitespaces on the same line and parentheses. The entailment can be solved using forward or backward chaining. The sentences should use "v" as or, "^" as and, and "=>" as implication. The symbols cannot contain "^", "v", "=>".
+
+The two examples I test in english are:
+	
+	If your happy and you know it and you really want to show clap your hands.
+
+	If its a Person with long hair then they are a girl. If they are a person and the same weight as a duck then they float. If they `float then they're made of wood. If its hot and you have no water then you have fire. If they are made of wood and you have fire `then they burn. If they burn and they are a girl then they are a witch! --a reference to Monty Python and the Holy Grail
+
+For them I am searching for clap your hands and witch respectively.
+
+To run:
+
+	make
+	chmod +x entail
+	./entail <algorithm> <KBFile> <Query>
+		ie. backward KB.txt Q
+
+To run all tests:
+
+	chmod +x test*
+	./test
+
+The test will run KB1.txt and KB2.txt with forward and backward chaining
+
+To run the tests individually:
+
+	chmod +x test<number>
+	./test<number>
+
+test1: KB1.txt forward Query
+test2: KB1.txt backward Query
+test3: KB2.txt forward Query
+test4: KB2.txt backward Query

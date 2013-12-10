@@ -1,0 +1,35 @@
+#!/bin/bash
+echo "Running Tests for Entail"
+echo "----------------------------------"
+echo "First knowledge base in english:"
+echo "--"
+echo "If your happy and you know it and you really want to show clap your hands."
+echo ""
+echo "KB1.txt content:"
+echo "--"
+cat KB1.txt
+echo ""
+echo "Searching for ClapYourHands forward"
+echo "--"
+./entail forward KB1.txt ClapYourHands
+echo ""
+echo "Searching for ClapYourHands backward"
+echo "--"
+./entail backward KB1.txt ClapYourHands
+echo "----------------------------------"
+echo "Second knowledge base in english:"
+echo "--"
+echo "How to determine a witch:"
+echo "If its a Person with long hair then they are a girl. If they are a person and the same weight as a duck then they float. If they float then they're made of wood. If its hot and you have no water then you have fire. If they are made of wood and you have fire then they burn. If they burn and they are a girl then they are a witch! --a reference to Monty Python and the Holy Grail"
+echo ""
+echo "KB2.txt content:"
+echo "--"
+cat KB2.txt
+echo ""
+echo "Searching for Witch forward"
+echo "--"
+./entail forward KB2.txt Witch
+echo ""
+echo "Searching for Witch backward"
+echo "--"
+./entail backward KB2.txt Witch

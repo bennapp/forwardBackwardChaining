@@ -1,0 +1,11 @@
+Person ^ LongHair => Girl
+NoWater ^ Hot => Fire
+~Person v ~WeightOfADuck v Floats
+Floats     =>         MadeOfWood
+Hot
+(((Fire) ^ MadeOfWood) => Burns)
+Burns ^ Girl => Witch
+NoWater
+WeightOfADuck
+Person
+LongHair
